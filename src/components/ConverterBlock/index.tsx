@@ -4,6 +4,7 @@ import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import Paper from '@material-ui/core/Paper';
+import { observer, inject } from 'mobx-react';
 
 type IConverterBlock = {
   classes: any;

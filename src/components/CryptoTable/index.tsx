@@ -12,11 +12,18 @@ import { TCoin } from '../../types';
 import CurrenciesStore from '../../stores/currenciesStore';
 
 type ICryptoTable = {
-  // items: TCoin[];
-
   classes: any;
   currenciesStore?: CurrenciesStore;
 };
+
+// const diffCurrencies = (arr1: TCoin[], arr2: TCoin[]) => {
+//   return arr1.filter((obj, index) => {
+//     if (obj.price !== arr2[index].price) {
+//       return true;
+//     }
+//     return false;
+//   });
+// };
 
 const CryptoTable = inject('currenciesStore')(
   observer(({ classes, currenciesStore }: ICryptoTable) => {
@@ -54,7 +61,9 @@ const CryptoTable = inject('currenciesStore')(
                     </TableCell>
                     <TableCell align="left">{coin.name}</TableCell>
                     <TableCell align="left">{coin.fullName}</TableCell>
-                    <TableCell align="left">${coin.price}</TableCell>
+                    <TableCell className={classes.columRed} align="left">
+                      ${coin.price}
+                    </TableCell>
                     <TableCell align="left">${coin.volume24Hour}</TableCell>
                   </TableRow>
                 ))}

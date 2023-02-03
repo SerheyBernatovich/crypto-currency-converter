@@ -1,31 +1,48 @@
 import { observable, computed, action } from 'mobx';
 import axios from 'axios';
-import { TCoin } from '../types';
+import { TCoin, TCoinDiff } from '../types';
 
-type TCoinDiff = {
-  name: string;
-  color: string;
-};
+// type TCoinDiff = { [key: string]: string };
 
 class CurrenciesStore {
   @observable private items: TCoin[] = [];
-  @observable private diffItems: TCoinDiff[] = [];
+  @observable private diffObj: TCoinDiff = {};
 
   @computed
   get getItems() {
     return this.items;
   }
 
+  @computed
+  get getDiffObj() {
+    return this.diffObj;
+  }
+
   @action
   setItems = (items: TCoin[]): void => {
+    this.diffObj = this.diffCurrencies(this.items, items).reduce(
+      (initObj: TCoinDiff, obj: TCoin) => {
+        const newObj: TCoin = items.find((o) => o.name === obj.name)!;
+        const oldObj: TCoin = this.items.find(
+          (itemObj) => itemObj.name === newObj.name
+        )!;
+        const color: string =
+          newObj.price === oldObj.price
+            ? ''
+            : newObj.price > oldObj.price
+            ? 'green'
+            : 'red';
+
+        initObj[newObj.name] = color;
+
+        return initObj;
+      },
+      {}
+    );
     this.items = items;
-    this.diffItems = this.diffCurrencies(this.items, items).map((newObj) => {
-      const oldObj = this.items.find((itemObj) => itemObj.name === newObj.name);
-      return {
-        name: obj.name,
-        color: oldObj,
-      };
-    });
+    setTimeout(() => {
+      this.diffObj = {};
+    }, 10000);
   };
 
   @action
@@ -50,6 +67,7 @@ class CurrenciesStore {
       });
     return [];
   };
+
   diffCurrencies = (arr1: TCoin[], arr2: TCoin[]) => {
     return arr1.filter((obj, index) => {
       if (obj.price !== arr2[index].price) {

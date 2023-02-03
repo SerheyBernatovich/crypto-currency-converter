@@ -8,7 +8,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import { TCoin } from '../../types';
+import { TCoin, TCoinDiff } from '../../types';
 import CurrenciesStore from '../../stores/currenciesStore';
 
 type ICryptoTable = {
@@ -28,10 +28,14 @@ type ICryptoTable = {
 const CryptoTable = inject('currenciesStore')(
   observer(({ classes, currenciesStore }: ICryptoTable) => {
     const items: TCoin[] = currenciesStore!.getItems;
+    const diffObj: TCoinDiff = currenciesStore!.getDiffObj;
 
     React.useEffect(() => {
       if (currenciesStore) {
         currenciesStore.fetchCoins();
+        // setInterval(() => {
+        //   currenciesStore.fetchCoins();
+        // }, 30 * 1000);
       }
     }, []);
 
@@ -61,7 +65,13 @@ const CryptoTable = inject('currenciesStore')(
                     </TableCell>
                     <TableCell align="left">{coin.name}</TableCell>
                     <TableCell align="left">{coin.fullName}</TableCell>
-                    <TableCell className={classes.columRed} align="left">
+                    <TableCell
+                      className={
+                        diffObj[coin.name] &&
+                        classes[`${diffObj[coin.name]}Column`]
+                      }
+                      align="left"
+                    >
                       ${coin.price}
                     </TableCell>
                     <TableCell align="left">${coin.volume24Hour}</TableCell>

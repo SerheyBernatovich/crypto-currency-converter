@@ -31,10 +31,10 @@ const useStyles = makeStyles((theme) => ({
     height: 18,
     borderRadius: 30,
   },
-  columGreen: {
+  redColumn: {
     backgroundColor: '#d8ffc4',
   },
-  columRed: {
+  greenColumn: {
     backgroundColor: '#ffdada',
   },
 }));

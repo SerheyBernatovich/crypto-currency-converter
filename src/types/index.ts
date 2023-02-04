@@ -6,3 +6,8 @@ export type TCoin = {
   volume24Hour: number;
 };
 export type TCoinDiff = { [key: string]: string };
+
+export type TSelectedCoin = {
+  name: string;
+  price: number;
+};

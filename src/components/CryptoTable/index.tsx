@@ -10,10 +10,12 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import { TCoin, TCoinDiff } from '../../types';
 import CurrenciesStore from '../../stores/currenciesStore';
+import ConverterStore from '../../stores/converterStore';
 
 type ICryptoTable = {
   classes: any;
   currenciesStore?: CurrenciesStore;
+  converterStore?: ConverterStore;
 };
 
 // const diffCurrencies = (arr1: TCoin[], arr2: TCoin[]) => {
@@ -25,19 +27,28 @@ type ICryptoTable = {
 //   });
 // };
 
-const CryptoTable = inject('currenciesStore')(
-  observer(({ classes, currenciesStore }: ICryptoTable) => {
+const CryptoTable = inject(
+  'currenciesStore',
+  'converterStore'
+)(
+  observer(({ classes, currenciesStore, converterStore }: ICryptoTable) => {
     const items: TCoin[] = currenciesStore!.getItems;
     const diffObj: TCoinDiff = currenciesStore!.getDiffObj;
 
     React.useEffect(() => {
       if (currenciesStore) {
         currenciesStore.fetchCoins();
-        // setInterval(() => {
-        //   currenciesStore.fetchCoins();
-        // }, 30 * 1000);
+        setInterval(() => {
+          currenciesStore.fetchCoins();
+        }, 30 * 1000);
       }
     }, []);
+
+    const onClickRow = (coin: TCoin) => {
+      if (converterStore) {
+        converterStore.setSelectedCoin(coin);
+      }
+    };
 
     return (
       <TableContainer component={Paper}>
@@ -55,7 +66,12 @@ const CryptoTable = inject('currenciesStore')(
             {!items.length
               ? 'Loading...'
               : items.map((coin) => (
-                  <TableRow key={coin.name}>
+                  <TableRow
+                    onClick={() => onClickRow(coin)}
+                    className={classes.rowCurrency}
+                    hover
+                    key={coin.name}
+                  >
                     <TableCell>
                       <img
                         className={classes.currencyIcon}

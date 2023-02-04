@@ -37,5 +37,8 @@ const useStyles = makeStyles((theme) => ({
   greenColumn: {
     backgroundColor: '#ffdada',
   },
+  rowCurrency: {
+    cursor: 'pointer',
+  },
 }));
 export default useStyles;

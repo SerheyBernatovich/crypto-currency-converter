@@ -8,6 +8,7 @@ import { observer, inject } from 'mobx-react';
 import CurrenciesStore from '../../stores/currenciesStore';
 import ConverterStore from '../../stores/converterStore';
 import React from 'react';
+import { TSelectedCoin } from '../../types';
 
 type IConverterBlock = {
   classes: any;
@@ -18,6 +19,8 @@ type IConverterBlock = {
 type TReducerState = {
   value1: string;
   value2: string;
+  inPrice: number;
+  outPrice: number;
 };
 
 type TSetValue1Action = {
@@ -26,15 +29,27 @@ type TSetValue1Action = {
 };
 type TAction = TSetValue1Action;
 
-function reducer(state: TReducerState, action: TAction): TReducerState {
+function reducer(state: TReducerState, action: any): TReducerState {
   switch (action.type) {
     case 'SET_VALUE':
-      break;
+      return {
+        ...state,
+        [action.payload.name]: action.payload.value,
+        value2: String(
+          (Number(action.payload.value) * state.inPrice) / state.outPrice
+        ),
+      };
+
+    case 'SET_PRICES':
+      return {
+        ...state,
+        inPrice: action.payload.in,
+        outPrice: action.payload.out,
+      };
 
     default:
-      break;
+      return state;
   }
-  return state;
 }
 
 const ConverterBlock: React.FC<IConverterBlock> = inject(
@@ -42,27 +57,60 @@ const ConverterBlock: React.FC<IConverterBlock> = inject(
   'converterStore'
 )(
   observer(({ classes, currenciesStore, converterStore }) => {
+    const [selectedOutCoin, setSelectedOutCoin] = React.useState('USD');
+    const [selectedInCoin, setSelectedInCoin] = React.useState('BTC');
+    const coins: string[] = currenciesStore!.getItems.map((coin) => coin.name);
+    const inPrice = Number(converterStore?.getSelectedCoin.price) || 0;
+    const outPrice =
+      Number(
+        currenciesStore!.getItems.find((obj) => obj.name === selectedOutCoin)
+          ?.price
+      ) || 0;
     const [state, dispatch] = React.useReducer(reducer, {
       value1: '',
       value2: '',
+      inPrice,
+      outPrice,
     });
-    const [selectedOutCoin, setSelectedOutCoin] = React.useState('USD');
-    const coins: string[] = currenciesStore!.getItems.map((coin) => coin.name);
-    const onUpdateField = (name: string, value: string) => {};
+
+    React.useEffect(() => {
+      dispatch({
+        type: 'SET_PRICES',
+        payload: {
+          in: inPrice,
+          out: outPrice,
+        },
+      });
+    }, [inPrice, outPrice]);
+
+    const onUpdateField = (name: string, value: string) => {
+      dispatch({
+        type: 'SET_VALUE',
+        payload: {
+          name,
+          value,
+        },
+      });
+    };
     // console.log(converterStore?.getSelectedCoin.name);
     return (
       <Paper className={classes.paper}>
         <div className={classes.cryptoInputBox}>
           <FormControl className={classes.currencyInput}>
-            <TextField value={state.value1} onKeyUp={} label="Total" />
+            <TextField
+              type="number"
+              value={state.value1}
+              onChange={(e: any) => onUpdateField('value1', e.target.value)}
+              label="Total"
+            />
           </FormControl>
           <FormControl className={classes.currencyType}>
             <InputLabel shrink id="demo-simple-select-placeholder-label-label">
               Currency
             </InputLabel>
             <Select
-              value={converterStore?.getSelectedCoin.name || ''}
-              // onChange={handleChange}
+              onChange={(e) => setSelectedInCoin(e.target.value as string)}
+              value={selectedInCoin}
             >
               {coins.map((name) => (
                 <MenuItem key={name} value={name}>
@@ -74,7 +122,7 @@ const ConverterBlock: React.FC<IConverterBlock> = inject(
         </div>
         <div className={classes.cryptoInputBox}>
           <FormControl className={classes.currencyInput}>
-            <TextField value={state.value2} label="Total" />
+            <TextField type="number" value={state.value2} label="Total" />
           </FormControl>
           <FormControl className={classes.currencyType}>
             <InputLabel shrink id="demo-simple-select-placeholder-label-label">

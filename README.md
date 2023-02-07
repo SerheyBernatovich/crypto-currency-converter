@@ -1,5 +1,16 @@
 # Getting Started with Create React App
 
+[link](https://serheybernatovich.github.io/crypto-currency-converter/)
+
+## Author Serhii Bernatovich
+
+🛠:
+ReactJS 18
+
+TypeScript
+
+MobX (Material UI)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
